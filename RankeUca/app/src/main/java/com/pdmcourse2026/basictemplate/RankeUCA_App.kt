@@ -17,21 +17,55 @@ import com.pdmcourse2026.basictemplate.screens.questions.QuestionsScreen
 import com.pdmcourse2026.basictemplate.screens.vote.VoteScreen
 import com.pdmcourse2026.basictemplate.screens.vote.VoteViewModel
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import com.pdmcourse2026.basictemplate.screens.auth.AuthViewModel
+import com.pdmcourse2026.basictemplate.screens.auth.LoginScreen
+
 @Composable
 fun RankeUCA_App() {
+  val authViewModel: AuthViewModel = viewModel(factory = AuthViewModel.Factory)
+  val isLoggedIn by authViewModel.isLoggedIn.collectAsState()
+  val userName by authViewModel.userName.collectAsState()
+
+  when (isLoggedIn) {
+    null -> {
+      Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+      ) {
+        CircularProgressIndicator()
+      }
+    }
+    false -> {
+      LoginScreen(viewModel = authViewModel)
+    }
+    true -> {
+      MainNavigation(
+        userName = userName,
+        onLogout = { authViewModel.logout() }
+      )
+    }
+  }
+}
+
+@Composable
+fun MainNavigation(
+  userName: String?,
+  onLogout: () -> Unit
+) {
   val context = LocalContext.current
   val app = context.applicationContext as RankeUCAApplication
   val repository = app.repository
 
-  // Determinar la ruta inicial si existe la apiKey guardada
-  val startDestination = remember {
-    if (repository.getApiKey() != null) Routes.Vote else Routes.Register
-  }
-
-  val backStack = rememberNavBackStack(startDestination)
+  val backStack = rememberNavBackStack(Routes.Vote)
 
   val factory = remember { ViewModelFactory(repository) }
-  val registerViewModel: RegisterViewModel = viewModel(factory = factory)
   val voteViewModel: VoteViewModel = viewModel(factory = factory)
   val resultsViewModel: ResultsViewModel = viewModel(factory = factory)
 
@@ -39,20 +73,11 @@ fun RankeUCA_App() {
     backStack = backStack,
     onBack = { backStack.removeLastOrNull() },
     entryProvider = entryProvider {
-      entry<Routes.Register> {
-        RegisterScreen(
-          viewModel = registerViewModel,
-          onRegisterSuccess = {
-            voteViewModel.loadOptions()
-            voteViewModel.resetVoteStatus()
-            backStack.clear()
-            backStack.add(Routes.Vote)
-          }
-        )
-      }
       entry<Routes.Vote> {
         VoteScreen(
           viewModel = voteViewModel,
+          userName = userName,
+          onLogout = onLogout,
           onNavigateToResults = {
             resultsViewModel.loadResults()
             backStack.add(Routes.Results)
@@ -61,8 +86,7 @@ fun RankeUCA_App() {
             backStack.add(Routes.Questions)
           },
           onSessionExpired = {
-            backStack.clear()
-            backStack.add(Routes.Register)
+            onLogout()
           }
         )
       }
@@ -74,8 +98,7 @@ fun RankeUCA_App() {
             backStack.removeLastOrNull()
           },
           onSessionExpired = {
-            backStack.clear()
-            backStack.add(Routes.Register)
+            onLogout()
           }
         )
       }

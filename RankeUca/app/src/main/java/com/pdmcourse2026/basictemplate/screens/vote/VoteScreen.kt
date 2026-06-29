@@ -52,10 +52,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun VoteScreen(
   viewModel: VoteViewModel,
+  userName: String?,
+  onLogout: () -> Unit,
   onNavigateToResults: () -> Unit,
   onNavigateToAdmin: () -> Unit,
   onSessionExpired: () -> Unit
@@ -78,7 +82,7 @@ fun VoteScreen(
         title = {
           Column {
             Text(
-              text = "RankeUCA",
+              text = if (userName.isNullOrBlank()) "RankeUCA" else "¡Hola, $userName!",
               style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
             )
             Text(
@@ -100,6 +104,13 @@ fun VoteScreen(
               imageVector = Icons.Default.Refresh,
               contentDescription = "Recargar opciones",
               tint = MaterialTheme.colorScheme.primary
+            )
+          }
+          IconButton(onClick = onLogout) {
+            Icon(
+              imageVector = Icons.AutoMirrored.Filled.ExitToApp,
+              contentDescription = "Cerrar sesión",
+              tint = MaterialTheme.colorScheme.error
             )
           }
         }

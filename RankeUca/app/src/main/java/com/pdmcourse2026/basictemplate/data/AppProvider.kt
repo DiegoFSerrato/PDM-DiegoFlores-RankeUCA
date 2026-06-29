@@ -6,6 +6,9 @@ import com.pdmcourse2026.basictemplate.data.repository.OptionRepository
 import com.pdmcourse2026.basictemplate.data.repository.OptionRepositoryImpl
 import com.pdmcourse2026.basictemplate.data.repository.QuestionRepository
 import com.pdmcourse2026.basictemplate.data.repository.QuestionRepositoryImpl
+import com.pdmcourse2026.basictemplate.data.repository.AuthRepository
+import com.pdmcourse2026.basictemplate.data.repository.AuthRepositoryImpl
+import com.pdmcourse2026.basictemplate.data.session.SessionManager
 
 class AppProvider(context: Context) {
 
@@ -19,11 +22,23 @@ class AppProvider(context: Context) {
   private val questionRepository: QuestionRepository =
     QuestionRepositoryImpl(questionDao)
 
+  private val sessionManager = SessionManager(context)
+  private val authRepository: AuthRepository =
+    AuthRepositoryImpl(sessionManager)
+
   fun provideOptionRepository(): OptionRepository {
     return optionRepository
   }
 
   fun provideQuestionRepository(): QuestionRepository {
     return questionRepository
+  }
+
+  fun provideAuthRepository(): AuthRepository {
+    return authRepository
+  }
+
+  fun provideSessionManager(): SessionManager {
+    return sessionManager
   }
 }

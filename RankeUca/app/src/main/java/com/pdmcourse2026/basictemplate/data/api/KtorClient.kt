@@ -15,6 +15,8 @@ import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 
 object KtorClient {
+  var authToken: String? = null
+
   val client = HttpClient(OkHttp) {
     // Parseo automáaico de JSON
     install(ContentNegotiation) {
@@ -37,6 +39,9 @@ object KtorClient {
     defaultRequest {
       url("https://qjcxdvfzyseuvezacxsd.supabase.co/functions/v1/rankeuca/")
       header(HttpHeaders.Accept, "application/json")
+      authToken?.let { token ->
+        header(HttpHeaders.Authorization, "Bearer $token")
+      }
     }
   }
 }
