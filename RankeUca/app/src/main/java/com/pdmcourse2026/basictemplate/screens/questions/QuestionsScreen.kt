@@ -1,5 +1,6 @@
-package com.pdmcourse2026.basictemplate.screens.options
+package com.pdmcourse2026.basictemplate.screens.questions
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -39,19 +40,19 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun OptionsScreen(
-  questionId: Int,
+fun QuestionsScreen(
   onNavigateBack: () -> Unit,
-  viewModel: OptionsViewModel = viewModel(factory = OptionsViewModel.provideFactory(questionId))
+  onQuestionClick: (Int) -> Unit,
+  viewModel: QuestionsViewModel = viewModel(factory = QuestionsViewModel.Factory)
 ) {
-  val options by viewModel.options.collectAsStateWithLifecycle()
+  val questions by viewModel.questions.collectAsStateWithLifecycle()
   var showSheet by rememberSaveable { mutableStateOf(false) }
 
   Scaffold(
     containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
     topBar = {
       TopAppBar(
-        title = { Text("Administrar opciones") },
+        title = { Text("Preguntas") },
         navigationIcon = {
           IconButton(onClick = onNavigateBack) {
             Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Volver")
@@ -59,7 +60,7 @@ fun OptionsScreen(
         },
         actions = {
           TextButton(onClick = { showSheet = true }) {
-            Icon(imageVector = Icons.Default.Add, contentDescription = "Nueva opción")
+            Icon(imageVector = Icons.Default.Add, contentDescription = "Nueva pregunta")
             Spacer(modifier = Modifier.width(4.dp))
             Text("Nuevo")
           }
@@ -76,7 +77,7 @@ fun OptionsScreen(
         .padding(innerPadding)
         .padding(horizontal = 16.dp, vertical = 12.dp)
     ) {
-      if (options.isEmpty()) {
+      if (questions.isEmpty()) {
         Column(
           modifier = Modifier.fillMaxSize(),
           verticalArrangement = Arrangement.Center,
@@ -90,7 +91,7 @@ fun OptionsScreen(
           )
           Spacer(modifier = Modifier.height(12.dp))
           Text(
-            text = "Todavía no hay opciones",
+            text = "Todavía no hay preguntas",
             style = MaterialTheme.typography.titleMedium
           )
           Text(
@@ -105,27 +106,30 @@ fun OptionsScreen(
           contentPadding = PaddingValues(vertical = 4.dp),
           verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-          items(items = options, key = { it.id }) { option ->
-            ElevatedCard {
+          items(items = questions, key = { it.id }) { question ->
+            ElevatedCard(
+              modifier = Modifier.clickable { onQuestionClick(question.id) }
+            ) {
               ListItem(
                 headlineContent = {
                   Text(
-                    text = option.name,
+                    text = question.title,
                     style = MaterialTheme.typography.titleMedium
                   )
                 },
                 supportingContent = {
+                  val word = if (question.optionCount == 1) "opción" else "opciones"
                   Text(
-                    text = option.imageUrl,
+                    text = "${question.optionCount} $word",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                   )
                 },
                 trailingContent = {
-                  IconButton(onClick = { viewModel.deleteOption(option) }) {
+                  IconButton(onClick = { viewModel.deleteQuestion(question) }) {
                     Icon(
                       imageVector = Icons.Default.DeleteOutline,
-                      contentDescription = "Borrar ${option.name}",
+                      contentDescription = "Borrar ${question.title}",
                       tint = MaterialTheme.colorScheme.error
                     )
                   }
@@ -139,9 +143,9 @@ fun OptionsScreen(
   }
 
   if (showSheet) {
-    OptionBottomSheet(
-      onSave = { name, imageUrl ->
-        viewModel.addOption(name, imageUrl)
+    QuestionBottomSheet(
+      onSave = { title ->
+        viewModel.addQuestion(title)
       },
       onDismiss = { showSheet = false }
     )

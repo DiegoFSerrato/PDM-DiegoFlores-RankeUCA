@@ -13,6 +13,7 @@ import com.pdmcourse2026.basictemplate.screens.register.RegisterViewModel
 import com.pdmcourse2026.basictemplate.screens.results.ResultsScreen
 import com.pdmcourse2026.basictemplate.screens.results.ResultsViewModel
 import com.pdmcourse2026.basictemplate.screens.options.OptionsScreen
+import com.pdmcourse2026.basictemplate.screens.questions.QuestionsScreen
 import com.pdmcourse2026.basictemplate.screens.vote.VoteScreen
 import com.pdmcourse2026.basictemplate.screens.vote.VoteViewModel
 
@@ -57,7 +58,7 @@ fun RankeUCA_App() {
             backStack.add(Routes.Results)
           },
           onNavigateToAdmin = {
-            backStack.add(Routes.Options)
+            backStack.add(Routes.Questions)
           },
           onSessionExpired = {
             backStack.clear()
@@ -78,8 +79,19 @@ fun RankeUCA_App() {
           }
         )
       }
-      entry<Routes.Options> {
+      entry<Routes.Questions> {
+        QuestionsScreen(
+          onNavigateBack = {
+            backStack.removeLastOrNull()
+          },
+          onQuestionClick = { questionId ->
+            backStack.add(Routes.Options(questionId = questionId))
+          }
+        )
+      }
+      entry<Routes.Options> { route ->
         OptionsScreen(
+          questionId = route.questionId,
           onNavigateBack = {
             backStack.removeLastOrNull()
           }
