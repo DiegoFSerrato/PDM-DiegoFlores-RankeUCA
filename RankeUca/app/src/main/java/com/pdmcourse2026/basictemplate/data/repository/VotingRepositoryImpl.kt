@@ -4,6 +4,8 @@ import com.pdmcourse2026.basictemplate.data.api.ApiService
 import com.pdmcourse2026.basictemplate.data.local.PreferencesManager
 import com.pdmcourse2026.basictemplate.domain.model.Option
 
+import com.pdmcourse2026.basictemplate.data.api.KtorClient
+
 class VotingRepositoryImpl(
   private val apiService: ApiService,
   private val preferencesManager: PreferencesManager
@@ -20,15 +22,15 @@ class VotingRepositoryImpl(
   }
 
   override suspend fun getOptions(): Result<List<Option>> {
-    val apiKey = preferencesManager.getApiKey()
-      ?: return Result.failure(Exception("Usuario no autenticado (falta API key)"))
+    val token = KtorClient.authToken
+      ?: return Result.failure(Exception("Usuario no autenticado (falta token)"))
     return runCatching {
-      val dtos = apiService.getOptions(apiKey)
+      val dtos = apiService.getOptions(token)
       dtos.map { dto ->
         Option(
           id = dto.id,
           name = dto.name,
-          imageUrl = dto.imageUrl,
+          imageUrl = dto.imageUrl ?: "",
           votes = dto.votes
         )
       }
@@ -36,19 +38,19 @@ class VotingRepositoryImpl(
   }
 
   override suspend fun vote(optionId: Int): Result<Unit> {
-    val apiKey = preferencesManager.getApiKey()
-      ?: return Result.failure(Exception("Usuario no autenticado (falta API key)"))
+    val token = KtorClient.authToken
+      ?: return Result.failure(Exception("Usuario no autenticado (falta token)"))
     return runCatching {
-      val response = apiService.vote(apiKey, optionId)
+      val response = apiService.vote(token, optionId)
       if (!response.ok) {
         throw Exception(response.message ?: "Error al registrar el voto")
       }
     }
   }
 
-  override fun getApiKey(): String? = preferencesManager.getApiKey()
+  override fun getApiKey(): String? = KtorClient.authToken
 
-  override fun getCarnet(): String? = preferencesManager.getCarnet()
+  override fun getCarnet(): String? = "00029823"
 
   override fun clearSession() {
     preferencesManager.clear()

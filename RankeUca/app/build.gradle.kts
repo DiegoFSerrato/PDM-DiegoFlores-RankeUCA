@@ -31,7 +31,8 @@ android {
 
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-    //buildConfigField("String", "API_TOKEN", "\"$apiToken\"")
+    val apiUrl = localProperties.getProperty("api.url") ?: "https://qjcxdvfzyseuvezacxsd.supabase.co/functions/v1/rankeuca/"
+    buildConfigField("String", "API_URL", "\"$apiUrl\"")
   }
 
   buildTypes {

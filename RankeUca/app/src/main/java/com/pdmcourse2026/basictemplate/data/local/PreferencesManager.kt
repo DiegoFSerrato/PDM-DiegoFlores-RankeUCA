@@ -12,13 +12,13 @@ class PreferencesManager(context: Context) {
     private const val KEY_CARNET = "carnet"
   }
 
-  fun getApiKey(): String? = sharedPreferences.getString(KEY_API_KEY, "c1452e68-ee85-4afa-ae8c-281d97fdfa54")
+  fun getApiKey(): String? = sharedPreferences.getString(KEY_API_KEY, null)
 
   fun saveApiKey(apiKey: String) {
     sharedPreferences.edit().putString(KEY_API_KEY, apiKey).apply()
   }
 
-  fun getCarnet(): String? = sharedPreferences.getString(KEY_CARNET, "00029823")
+  fun getCarnet(): String? = sharedPreferences.getString(KEY_CARNET, null)
 
   fun saveCarnet(carnet: String) {
     sharedPreferences.edit().putString(KEY_CARNET, carnet).apply()

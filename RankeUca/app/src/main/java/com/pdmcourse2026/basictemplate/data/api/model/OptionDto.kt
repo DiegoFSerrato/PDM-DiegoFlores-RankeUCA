@@ -6,6 +6,6 @@ import kotlinx.serialization.Serializable
 data class OptionDto(
   val id: Int,
   val name: String,
-  val imageUrl: String,
+  val imageUrl: String?,
   val votes: Int
 )

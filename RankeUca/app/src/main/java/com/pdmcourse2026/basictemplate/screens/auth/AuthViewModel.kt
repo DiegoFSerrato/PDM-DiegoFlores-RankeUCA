@@ -37,7 +37,13 @@ class AuthViewModel(
       try {
         repository.login(email, password)
       } catch (e: Exception) {
-        _error.value = "Correo o contraseña incorrectos"
+        android.util.Log.e("AuthViewModel", "Login failed", e)
+        val msg = e.message ?: ""
+        if (msg.contains("401") || msg.contains("Unauthorized") || msg.contains("inválidas") || msg.contains("incorrecto")) {
+          _error.value = "Correo o contraseña incorrectos"
+        } else {
+          _error.value = "Error de red/servidor: ${e.localizedMessage ?: "desconocido"}"
+        }
       } finally {
         _isLoading.value = false
       }

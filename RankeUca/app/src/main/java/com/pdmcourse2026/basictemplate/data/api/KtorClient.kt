@@ -14,6 +14,8 @@ import io.ktor.http.HttpHeaders
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 
+import com.pdmcourse2026.basictemplate.BuildConfig
+
 object KtorClient {
   var authToken: String? = null
 
@@ -37,7 +39,7 @@ object KtorClient {
 
     // Configuracion para todas las peticiones
     defaultRequest {
-      url("https://qjcxdvfzyseuvezacxsd.supabase.co/functions/v1/rankeuca/")
+      url(BuildConfig.API_URL)
       header(HttpHeaders.Accept, "application/json")
       authToken?.let { token ->
         header(HttpHeaders.Authorization, "Bearer $token")
